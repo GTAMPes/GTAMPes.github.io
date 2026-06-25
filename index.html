@@ -33,7 +33,6 @@
       color:var(--ink);
       overflow:hidden;
       -webkit-font-smoothing:antialiased;
-      /* Cielo de atardecer Vice City: púrpura -> rosa -> naranja en el horizonte -> dusk */
       background:linear-gradient(180deg,
         #160726 0%,
         #2a0b3f 23%,
@@ -48,10 +47,9 @@
     .crt{
       position:fixed; inset:0;
       display:flex; align-items:center; justify-content:center;
-      animation:flicker 7s infinite steps(1);
     }
 
-    /* ---------- Sol bajo el horizonte (bloom) ---------- */
+    /* ---------- Sol bajo el horizonte ---------- */
     .sun{
       position:fixed; left:50%; top:74%;
       transform:translate(-50%,-50%);
@@ -67,7 +65,44 @@
       animation:bloom 9s ease-in-out infinite;
     }
 
-    /* ---------- Rejilla synthwave en el suelo ---------- */
+    /* ---------- Lens flare cinematográfico sobre el sol ---------- */
+    .flare{
+      position:fixed; left:50%; top:74%;
+      transform:translate(-50%,-50%);
+      z-index:1; pointer-events:none;
+      mix-blend-mode:screen;
+      width:0; height:0;
+    }
+    .flare::before{ /* streak horizontal anamórfico */
+      content:""; position:absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:min(140vw,1500px); height:2px;
+      background:linear-gradient(90deg,
+        transparent 0%,
+        rgba(120,220,255,0) 16%,
+        rgba(255,240,215,0) 30%,
+        rgba(255,242,220,.92) 50%,
+        rgba(255,240,215,0) 70%,
+        rgba(120,220,255,0) 84%,
+        transparent 100%);
+      filter:blur(1px);
+      opacity:.6;
+      animation:flare-streak 8s ease-in-out infinite;
+    }
+    .flare::after{ /* núcleo brillante */
+      content:""; position:absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:min(28vw,260px); height:min(28vw,260px);
+      background:radial-gradient(circle,
+        rgba(255,247,228,.9) 0%,
+        rgba(255,200,120,.35) 18%,
+        transparent 55%);
+      filter:blur(2px);
+      opacity:.7;
+      animation:flare-glint 8s ease-in-out infinite;
+    }
+
+    /* ---------- Rejilla synthwave ---------- */
     .grid{
       position:fixed; left:-60%; right:-60%; bottom:0; height:30vh;
       background-image:
@@ -83,16 +118,18 @@
       animation:grid-move 4s linear infinite;
     }
 
-    /* ---------- Palmeras en silueta ---------- */
+    /* ---------- Palmeras ---------- */
     .palm{ position:fixed; bottom:-2%; z-index:1; pointer-events:none; }
     .palm svg{ display:block; width:100%; height:auto; }
     .palm.left{ left:-4%; width:min(34vw,330px); }
     .palm.right{ right:-5%; width:min(42vw,430px); transform:scaleX(-1); }
 
-    /* ---------- Contenido ---------- */
+    /* ---------- Contenido (flex column = sin solapes) ---------- */
     .stage{
       position:relative; z-index:2;
-      text-align:center; padding:6vmin; width:100%;
+      display:flex; flex-direction:column; align-items:center;
+      gap:clamp(1rem,3vh,1.9rem);
+      text-align:center; width:100%; padding:6vmin;
       transform:translateY(-4vh);
     }
 
@@ -101,9 +138,9 @@
       font-size:clamp(.55rem,1.5vw,.78rem);
       letter-spacing:.42em; text-indent:.42em;
       color:var(--ink-dim);
-      display:inline-flex; align-items:center; gap:.85em;
+      display:flex; align-items:center; gap:.85em;
+      white-space:nowrap;
       text-transform:uppercase;
-      margin-bottom:clamp(1rem,3vh,2rem);
       text-shadow:0 0 1.4em rgba(0,0,0,.5);
     }
     .dot{
@@ -113,13 +150,13 @@
       animation:pulse 1.5s ease-in-out infinite; flex:none;
     }
 
-    /* ---------- Wordmark: relleno degradado VI + glitch neón ---------- */
+    /* ---------- Wordmark ---------- */
     .glitch{
       position:relative; isolation:isolate;
       display:inline-block;
       font-family:var(--display); font-style:italic; font-weight:700;
       font-size:clamp(3.4rem,17vw,13rem);
-      line-height:.86; letter-spacing:-.012em;
+      line-height:1; padding:.06em 0; letter-spacing:-.012em;
       background:linear-gradient(177deg,
         #ff8fc0 0%,
         #ff2d95 30%,
@@ -132,11 +169,10 @@
         drop-shadow(0 0 .35em rgba(255,107,53,.4))
         drop-shadow(0 .02em .02em rgba(0,0,0,.35));
     }
-    /* Canales cromáticos detrás del texto: dejan ver flecos neón en los bordes */
     .glitch::before,
     .glitch::after{
       content:attr(data-text);
-      position:absolute; inset:0; width:100%; z-index:-1;
+      position:absolute; inset:.06em 0; width:100%; z-index:-1;
       background:none; -webkit-background-clip:border-box; background-clip:border-box;
       -webkit-text-fill-color:currentColor;
       pointer-events:none;
@@ -151,7 +187,6 @@
       transform:translateX(.018em);
       animation:noise-2 3.0s steps(1) infinite alternate-reverse;
     }
-    /* Estallido aleatorio (JS) */
     .glitch.is-bursting{ animation:jolt .22s steps(2) 1; }
     .glitch.is-bursting::before{ transform:translate(-.055em,-.008em); }
     .glitch.is-bursting::after{ transform:translate(.055em,.008em); }
@@ -163,7 +198,6 @@
       text-transform:uppercase;
       color:var(--teal);
       text-shadow:0 0 .55em rgba(22,224,196,.65);
-      margin-top:clamp(1.4rem,4vh,2.6rem);
       animation:subglitch 6s 1.2s infinite;
     }
 
@@ -171,7 +205,6 @@
       font-family:var(--mono);
       font-size:clamp(.6rem,1.6vw,.8rem);
       letter-spacing:.08em; color:var(--ink-faint);
-      margin-top:clamp(1rem,2.6vh,1.6rem);
       min-height:1.2em; text-transform:lowercase;
     }
 
@@ -186,21 +219,15 @@
     .corner.left{ left:clamp(1.2rem,4vw,2.4rem); }
     .corner.right{ right:clamp(1.2rem,4vw,2.4rem); }
 
-    /* ---------- Capas CRT ---------- */
+    /* ---------- Capas CRT (suavizadas, sin flicker) ---------- */
     .scanlines,.vignette{ position:fixed; inset:0; pointer-events:none; }
-    .scanlines{ z-index:3; mix-blend-mode:overlay; opacity:.6; }
+    .scanlines{ z-index:3; mix-blend-mode:overlay; opacity:.4; }
     .scanlines::before{
       content:"";position:absolute;inset:0;
       background:repeating-linear-gradient(to bottom,
         rgba(255,255,255,0) 0, rgba(255,255,255,0) 2px,
         rgba(255,255,255,.06) 3px, rgba(255,255,255,0) 4px);
-      animation:scan 8s linear infinite;
-    }
-    .scanlines::after{
-      content:"";position:absolute;left:0;right:0;height:22vh;top:-25vh;
-      background:linear-gradient(to bottom,
-        rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
-      animation:sweep 7s linear infinite;
+      animation:scan 10s linear infinite;
     }
     .vignette{
       z-index:4;
@@ -210,6 +237,11 @@
 
     /* ======================= Keyframes ======================= */
     @keyframes bloom{ 0%,100%{opacity:.92;filter:blur(4px)} 50%{opacity:1;filter:blur(7px)} }
+    @keyframes flare-streak{
+      0%,100%{ opacity:.4; transform:translate(-50%,-50%) scaleX(.9); }
+      50%{ opacity:.92; transform:translate(-50%,-50%) scaleX(1.06); }
+    }
+    @keyframes flare-glint{ 0%,100%{opacity:.5} 50%{opacity:1} }
     @keyframes grid-move{ to{ background-position:0 46px, 0 0; } }
     @keyframes jolt{
       0%{transform:translate(0,0) skewX(0)}
@@ -225,11 +257,6 @@
     }
     @keyframes pulse{ 0%,100%{opacity:.3} 50%{opacity:1} }
     @keyframes scan{ from{transform:translateY(0)} to{transform:translateY(4px)} }
-    @keyframes sweep{ to{top:125vh} }
-    @keyframes flicker{
-      0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.86}
-      94%{opacity:1} 96.5%{opacity:.93} 97.2%{opacity:1}
-    }
     @keyframes noise-1{
       0%{clip-path:inset(18% 0 62% 0)} 12%{clip-path:inset(72% 0 8% 0)}
       24%{clip-path:inset(40% 0 38% 0)} 36%{clip-path:inset(8% 0 84% 0)}
@@ -248,13 +275,13 @@
     @media (prefers-reduced-motion: reduce){
       *{animation:none !important; transition:none !important}
       .glitch::before,.glitch::after{display:none}
-      .scanlines::after{display:none}
     }
   </style>
 </head>
 <body>
   <main class="crt">
     <div class="sun" aria-hidden="true"></div>
+    <div class="flare" aria-hidden="true"></div>
     <div class="grid" aria-hidden="true"></div>
 
     <div class="palm left" aria-hidden="true">
