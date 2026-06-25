@@ -1,32 +1,322 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>GTAMP.es</title>
-  <link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GTAMP.es — Próximamente</title>
+  <meta name="description" content="GTAMP.es — Comunidad de GTA Multiplayer. Vice City vibes. Próximamente." />
+  <meta name="theme-color" content="#160726" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --pink:#ff2d95;
+      --pink-light:#ff7ab0;
+      --orange:#ff6b35;
+      --gold:#ffc24b;
+      --teal:#16e0c4;
+      --ink:#fdeaf2;
+      --ink-dim:rgba(253,234,242,.55);
+      --ink-faint:rgba(253,234,242,.30);
+      --mono:"Space Mono", ui-monospace, Menlo, monospace;
+      --display:"Oswald", system-ui, sans-serif;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+
+    body{
+      font-family:var(--display);
+      color:var(--ink);
+      overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+      /* Cielo de atardecer Vice City: púrpura -> rosa -> naranja en el horizonte -> dusk */
+      background:linear-gradient(180deg,
+        #160726 0%,
+        #2a0b3f 23%,
+        #5e1450 42%,
+        #b32a5f 58%,
+        #ff6b3d 72%,
+        #ff9a4d 77%,
+        #7a1f3a 85%,
+        #16081f 100%);
+    }
+
+    .crt{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      animation:flicker 7s infinite steps(1);
+    }
+
+    /* ---------- Sol bajo el horizonte (bloom) ---------- */
+    .sun{
+      position:fixed; left:50%; top:74%;
+      transform:translate(-50%,-50%);
+      width:min(82vw,760px); aspect-ratio:1; border-radius:50%;
+      background:radial-gradient(circle at 50% 50%,
+        rgba(255,214,120,.95) 0%,
+        rgba(255,140,80,.7) 20%,
+        rgba(255,60,140,.5) 42%,
+        rgba(255,45,149,.18) 60%,
+        transparent 72%);
+      filter:blur(4px);
+      z-index:0;
+      animation:bloom 9s ease-in-out infinite;
+    }
+
+    /* ---------- Rejilla synthwave en el suelo ---------- */
+    .grid{
+      position:fixed; left:-60%; right:-60%; bottom:0; height:30vh;
+      background-image:
+        linear-gradient(rgba(255,45,149,.55) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(255,45,149,.55) 1.5px, transparent 1.5px);
+      background-size:46px 46px, 46px 46px;
+      transform:perspective(30vh) rotateX(74deg);
+      transform-origin:bottom center;
+      opacity:.4;
+      -webkit-mask-image:linear-gradient(to top, #000 8%, transparent 92%);
+              mask-image:linear-gradient(to top, #000 8%, transparent 92%);
+      z-index:0;
+      animation:grid-move 4s linear infinite;
+    }
+
+    /* ---------- Palmeras en silueta ---------- */
+    .palm{ position:fixed; bottom:-2%; z-index:1; pointer-events:none; }
+    .palm svg{ display:block; width:100%; height:auto; }
+    .palm.left{ left:-4%; width:min(34vw,330px); }
+    .palm.right{ right:-5%; width:min(42vw,430px); transform:scaleX(-1); }
+
+    /* ---------- Contenido ---------- */
+    .stage{
+      position:relative; z-index:2;
+      text-align:center; padding:6vmin; width:100%;
+      transform:translateY(-4vh);
+    }
+
+    .eyebrow{
+      font-family:var(--mono);
+      font-size:clamp(.55rem,1.5vw,.78rem);
+      letter-spacing:.42em; text-indent:.42em;
+      color:var(--ink-dim);
+      display:inline-flex; align-items:center; gap:.85em;
+      text-transform:uppercase;
+      margin-bottom:clamp(1rem,3vh,2rem);
+      text-shadow:0 0 1.4em rgba(0,0,0,.5);
+    }
+    .dot{
+      width:.5em;height:.5em;border-radius:50%;
+      background:var(--pink);
+      box-shadow:0 0 .8em var(--pink);
+      animation:pulse 1.5s ease-in-out infinite; flex:none;
+    }
+
+    /* ---------- Wordmark: relleno degradado VI + glitch neón ---------- */
+    .glitch{
+      position:relative; isolation:isolate;
+      display:inline-block;
+      font-family:var(--display); font-style:italic; font-weight:700;
+      font-size:clamp(3.4rem,17vw,13rem);
+      line-height:.86; letter-spacing:-.012em;
+      background:linear-gradient(177deg,
+        #ff8fc0 0%,
+        #ff2d95 30%,
+        #ff5a2c 68%,
+        #ffc24b 100%);
+      -webkit-background-clip:text; background-clip:text;
+      color:transparent; -webkit-text-fill-color:transparent;
+      filter:
+        drop-shadow(0 0 .08em rgba(255,45,149,.65))
+        drop-shadow(0 0 .35em rgba(255,107,53,.4))
+        drop-shadow(0 .02em .02em rgba(0,0,0,.35));
+    }
+    /* Canales cromáticos detrás del texto: dejan ver flecos neón en los bordes */
+    .glitch::before,
+    .glitch::after{
+      content:attr(data-text);
+      position:absolute; inset:0; width:100%; z-index:-1;
+      background:none; -webkit-background-clip:border-box; background-clip:border-box;
+      -webkit-text-fill-color:currentColor;
+      pointer-events:none;
+    }
+    .glitch::before{
+      color:var(--pink);
+      transform:translateX(-.018em);
+      animation:noise-1 2.4s steps(1) infinite alternate-reverse;
+    }
+    .glitch::after{
+      color:var(--teal);
+      transform:translateX(.018em);
+      animation:noise-2 3.0s steps(1) infinite alternate-reverse;
+    }
+    /* Estallido aleatorio (JS) */
+    .glitch.is-bursting{ animation:jolt .22s steps(2) 1; }
+    .glitch.is-bursting::before{ transform:translate(-.055em,-.008em); }
+    .glitch.is-bursting::after{ transform:translate(.055em,.008em); }
+
+    .sub{
+      font-family:var(--mono); font-weight:700;
+      font-size:clamp(.72rem,2.3vw,1.1rem);
+      letter-spacing:.62em; padding-left:.62em;
+      text-transform:uppercase;
+      color:var(--teal);
+      text-shadow:0 0 .55em rgba(22,224,196,.65);
+      margin-top:clamp(1.4rem,4vh,2.6rem);
+      animation:subglitch 6s 1.2s infinite;
+    }
+
+    .status{
+      font-family:var(--mono);
+      font-size:clamp(.6rem,1.6vw,.8rem);
+      letter-spacing:.08em; color:var(--ink-faint);
+      margin-top:clamp(1rem,2.6vh,1.6rem);
+      min-height:1.2em; text-transform:lowercase;
+    }
+
+    .corner{
+      position:fixed; bottom:clamp(1.1rem,3.5vh,2rem);
+      font-family:var(--mono);
+      font-size:clamp(.55rem,1.4vw,.72rem);
+      letter-spacing:.28em; text-transform:uppercase;
+      color:rgba(255,122,176,.55); z-index:2;
+      text-shadow:0 0 1.2em rgba(0,0,0,.5);
+    }
+    .corner.left{ left:clamp(1.2rem,4vw,2.4rem); }
+    .corner.right{ right:clamp(1.2rem,4vw,2.4rem); }
+
+    /* ---------- Capas CRT ---------- */
+    .scanlines,.vignette{ position:fixed; inset:0; pointer-events:none; }
+    .scanlines{ z-index:3; mix-blend-mode:overlay; opacity:.6; }
+    .scanlines::before{
+      content:"";position:absolute;inset:0;
+      background:repeating-linear-gradient(to bottom,
+        rgba(255,255,255,0) 0, rgba(255,255,255,0) 2px,
+        rgba(255,255,255,.06) 3px, rgba(255,255,255,0) 4px);
+      animation:scan 8s linear infinite;
+    }
+    .scanlines::after{
+      content:"";position:absolute;left:0;right:0;height:22vh;top:-25vh;
+      background:linear-gradient(to bottom,
+        rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
+      animation:sweep 7s linear infinite;
+    }
+    .vignette{
+      z-index:4;
+      background:radial-gradient(125% 100% at 50% 45%, transparent 50%, rgba(20,3,30,.65) 100%);
+      box-shadow:inset 0 0 220px rgba(15,2,25,.8);
+    }
+
+    /* ======================= Keyframes ======================= */
+    @keyframes bloom{ 0%,100%{opacity:.92;filter:blur(4px)} 50%{opacity:1;filter:blur(7px)} }
+    @keyframes grid-move{ to{ background-position:0 46px, 0 0; } }
+    @keyframes jolt{
+      0%{transform:translate(0,0) skewX(0)}
+      25%{transform:translate(-.012em,.004em) skewX(7deg)}
+      50%{transform:translate(.014em,-.006em) skewX(-6deg)}
+      75%{transform:translate(-.008em,.002em) skewX(4deg)}
+      100%{transform:translate(0,0) skewX(0)}
+    }
+    @keyframes subglitch{
+      0%,2%,100%{opacity:1;transform:translateX(0)}
+      .6%{opacity:.4;transform:translateX(-3px) skewX(18deg)}
+      1.2%{opacity:.9;transform:translateX(2px)}
+    }
+    @keyframes pulse{ 0%,100%{opacity:.3} 50%{opacity:1} }
+    @keyframes scan{ from{transform:translateY(0)} to{transform:translateY(4px)} }
+    @keyframes sweep{ to{top:125vh} }
+    @keyframes flicker{
+      0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.86}
+      94%{opacity:1} 96.5%{opacity:.93} 97.2%{opacity:1}
+    }
+    @keyframes noise-1{
+      0%{clip-path:inset(18% 0 62% 0)} 12%{clip-path:inset(72% 0 8% 0)}
+      24%{clip-path:inset(40% 0 38% 0)} 36%{clip-path:inset(8% 0 84% 0)}
+      48%{clip-path:inset(56% 0 22% 0)} 60%{clip-path:inset(28% 0 60% 0)}
+      72%{clip-path:inset(80% 0 6% 0)} 84%{clip-path:inset(14% 0 70% 0)}
+      96%{clip-path:inset(46% 0 30% 0)} 100%{clip-path:inset(66% 0 18% 0)}
+    }
+    @keyframes noise-2{
+      0%{clip-path:inset(84% 0 4% 0)} 12%{clip-path:inset(20% 0 66% 0)}
+      24%{clip-path:inset(60% 0 18% 0)} 36%{clip-path:inset(32% 0 50% 0)}
+      48%{clip-path:inset(78% 0 8% 0)} 60%{clip-path:inset(12% 0 74% 0)}
+      72%{clip-path:inset(48% 0 28% 0)} 84%{clip-path:inset(70% 0 14% 0)}
+      96%{clip-path:inset(26% 0 58% 0)} 100%{clip-path:inset(54% 0 22% 0)}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important}
+      .glitch::before,.glitch::after{display:none}
+      .scanlines::after{display:none}
+    }
+  </style>
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width" />
-  <title>GTAMPes - Coming soon</title>
-  <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-  <div class="glitch" data-text="GTAMP.es">GTAMP.es</div>
-  <div class="glow">GTAMPes</div>
-  <p class="subtitle">COMING SOON</p>
-  </div>
-  <div class="scanlines"></div>
-</body>
-</html>
-<!-- partial -->
-  
+  <main class="crt">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="grid" aria-hidden="true"></div>
+
+    <div class="palm left" aria-hidden="true">
+      <svg viewBox="0 0 200 260"><g fill="#0a0414">
+        <path d="M96 100 C 92 150 92 190 86 256 L 106 256 C 110 190 108 150 110 100 Z"/>
+        <path d="M100 95 C 60 55 28 45 8 30 C 34 52 64 70 100 100 Z"/>
+        <path d="M100 95 C 72 50 48 28 30 12 C 52 40 78 64 100 100 Z"/>
+        <path d="M100 95 C 90 50 92 24 100 6 C 110 26 108 56 100 100 Z"/>
+        <path d="M100 95 C 128 50 152 28 170 12 C 148 40 122 64 100 100 Z"/>
+        <path d="M100 95 C 140 55 172 45 192 30 C 166 52 136 70 100 100 Z"/>
+        <path d="M100 100 C 152 70 182 74 200 92 C 168 82 134 82 100 108 Z"/>
+        <path d="M100 100 C 48 70 18 74 0 92 C 32 82 66 82 100 108 Z"/>
+      </g></svg>
+    </div>
+    <div class="palm right" aria-hidden="true">
+      <svg viewBox="0 0 200 260"><g fill="#0a0414">
+        <path d="M96 100 C 92 150 92 190 86 256 L 106 256 C 110 190 108 150 110 100 Z"/>
+        <path d="M100 95 C 60 55 28 45 8 30 C 34 52 64 70 100 100 Z"/>
+        <path d="M100 95 C 72 50 48 28 30 12 C 52 40 78 64 100 100 Z"/>
+        <path d="M100 95 C 90 50 92 24 100 6 C 110 26 108 56 100 100 Z"/>
+        <path d="M100 95 C 128 50 152 28 170 12 C 148 40 122 64 100 100 Z"/>
+        <path d="M100 95 C 140 55 172 45 192 30 C 166 52 136 70 100 100 Z"/>
+        <path d="M100 100 C 152 70 182 74 200 92 C 168 82 134 82 100 108 Z"/>
+        <path d="M100 100 C 48 70 18 74 0 92 C 32 82 66 82 100 108 Z"/>
+      </g></svg>
+    </div>
+
+    <div class="stage">
+      <span class="eyebrow"><span class="dot"></span>Comunidad · GTA Multiplayer</span>
+      <h1 class="glitch" data-text="GTAMP.es">GTAMP.es</h1>
+      <p class="sub">Próximamente</p>
+      <p class="status" id="status">&gt; estableciendo conexión</p>
+    </div>
+
+    <span class="corner left">ES · Madrid</span>
+    <span class="corner right">MMXXVI</span>
+
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+
+      var word = document.querySelector('.glitch');
+      function burst() {
+        word.classList.add('is-bursting');
+        setTimeout(function () { word.classList.remove('is-bursting'); }, 220);
+        setTimeout(burst, 2200 + Math.random() * 4200);
+      }
+      setTimeout(burst, 1600);
+
+      var status = document.getElementById('status');
+      var base = '> estableciendo conexión';
+      var step = 0;
+      setInterval(function () {
+        status.textContent = base + '.'.repeat(step % 4);
+        step++;
+      }, 480);
+    })();
+  </script>
 </body>
 </html>
